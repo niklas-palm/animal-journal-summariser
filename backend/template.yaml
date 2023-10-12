@@ -217,7 +217,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/get_summary
-      Handler: app.handler
+      Handler: app.lambda_handler
       Runtime: python3.9
       MemorySize: 2048
       Timeout: 45

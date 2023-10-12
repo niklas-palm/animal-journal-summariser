@@ -43,16 +43,22 @@ function App() {
     setWaitingForSummary(true);
   };
 
+  // const renderText = (): JSX.Element => {
+  //   return summary.split("\n").map((text: string) => {
+  //     return <p>{text}</p>;
+  //   });
+  // };
+
   return (
     <div className="App">
       <header className="App-header">
-        {waitingForSummary ? <p>Waiting for summary to compute</p> : null}
+        {waitingForSummary ? <p>Summarizing document...</p> : null}
         {loading || waitingForSummary ? (
           <Loading color="green" font="1.5em" />
         ) : (
           <input type="file" id="file" name="file" onChange={onUploadClick} />
         )}
-        {summary ? <p>{summary}</p> : null}
+        {summary ? <div className="Summary">{summary}</div> : null}
       </header>
     </div>
   );

@@ -58,12 +58,12 @@ Resources:
           - !Sub "${ServiceName}.demo.enpalm.se"
         CacheBehaviors:
           - AllowedMethods:
-              - DELETE
               - GET
               - HEAD
             TargetOriginId: Assets
             ViewerProtocolPolicy: redirect-to-https
             PathPattern: summaries/*
+            CachePolicyId: !Ref SumariesCachePolicy
         DefaultCacheBehavior:
           AllowedMethods: # Which methods to forward to S3
             - GET
@@ -106,6 +106,24 @@ Resources:
       Tags:
         - Key: project
           Value: !Ref ServiceName
+
+  SumariesCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        DefaultTTL: 60
+        MaxTTL: 60
+        MinTTL: 60
+        Name: SumariesCachePolicy
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          EnableAcceptEncodingBrotli: False
+          EnableAcceptEncodingGzip: True
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: none
 
   # Parameter used by frontend deployment pipeline
   BucketNameParameter:
@@ -196,7 +214,7 @@ Resources:
       Tags:
         Project: !Ref ServiceName
 
-  ## Lambda function
+  # Summarise function.
   SummarizeFunction:
     Type: AWS::Serverless::Function
     Properties:

@@ -188,6 +188,22 @@ Resources:
         - Key: project
           Value: !Ref ServiceName
 
+  SummariesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SummariesBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource: !Sub ${SummariesBucket.Arn}/*
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudfrontDistribution}
+
   # Gen presigned URL
   GenPresignedUrlLambda:
     Type: AWS::Serverless::Function

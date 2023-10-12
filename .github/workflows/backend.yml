@@ -36,4 +36,5 @@ jobs:
             --resolve-s3 \
             --region ${{env.AWS_REGION}} \
             --no-fail-on-empty-changeset \
-            --tags project=${{env.REPO}}
+            --tags project=${{env.REPO}} \
+            --capabilities CAPABILITY_IAM

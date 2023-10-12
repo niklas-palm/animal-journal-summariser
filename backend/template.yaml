@@ -211,8 +211,6 @@ Resources:
         Cors:
           AllowOrigins:
             - !Sub "https://${ServiceName}.demo.enpalm.se"
-      Tags:
-        Project: !Ref ServiceName
 
   # Summarise function.
   SummarizeFunction:

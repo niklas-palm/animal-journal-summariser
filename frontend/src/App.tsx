@@ -1,23 +1,54 @@
 import React from "react";
-import logo from "./logo.svg";
+import { useState, useEffect } from "react";
+import { Loading } from "@geist-ui/core";
+import { getSummary, postData } from "./utils";
+
 import "./App.css";
 
 function App() {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [summary, setSummary] = useState<any>(null);
+  const [waitingForSummary, setWaitingForSummary] = useState<boolean>(false);
+  const [objectKey, setObjectKey] = useState<string>("");
+
+  useEffect(() => {
+    if (waitingForSummary) {
+      const interval = setInterval(async () => {
+        let response = await getSummary(objectKey);
+        console.log(response);
+        // setSummary(response);
+        // setWaitingForSummary(false);
+      }, 1000);
+
+      //Clearing the interval
+      return () => clearInterval(interval);
+    }
+    // Update the document title using the browser API
+  }, [waitingForSummary, objectKey]);
+
+  const onUploadClick = async (e: any) => {
+    setSummary(null);
+    let files = e.target.files;
+
+    setLoading(true);
+    const response = await postData(files);
+    console.log(response);
+    setObjectKey(response);
+
+    setLoading(false);
+    setWaitingForSummary(true);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Hello world
-        </a>
+        {waitingForSummary ? <p>Waiting for summary to compute</p> : null}
+        {loading || waitingForSummary ? (
+          <Loading color="green" font="1.5em" />
+        ) : (
+          <input type="file" id="file" name="file" onChange={onUploadClick} />
+        )}
+        {summary ? <p>{summary}</p> : null}
       </header>
     </div>
   );

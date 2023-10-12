@@ -18,11 +18,15 @@ Resources:
       AccessControl: Private
 
   # Identity to allow cloudFront to access our private bucket.
-  CloudFrontOriginAccessIdentity:
-    Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Ref HostingBucket
+      OriginAccessControlConfig:
+        Description: Default Origin Access Control
+        Name: !Ref AWS::StackName
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
 
   # Bucket policy that allows the aboe OAI to access the bucket.
   HostingBucketPolicy:
@@ -34,14 +38,12 @@ Resources:
           - Action:
               - s3:GetObject
             Effect: Allow
-            Resource:
-              - !Join
-                - ""
-                - - "arn:aws:s3:::"
-                  - !Ref HostingBucket
-                  - "/*"
+            Resource: !Sub ${HostingBucket.Arn}/*
             Principal:
-              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudfrontDistribution}
 
   # CDN to front and cache the website
   CloudfrontDistribution:
@@ -66,16 +68,17 @@ Resources:
             Cookies:
               Forward: none
             QueryString: false
-          TargetOriginId: s3origin # Required
+          TargetOriginId: S3Origin
         DefaultRootObject: index.html
         Enabled: true
         HttpVersion: http2
         PriceClass: PriceClass_All
         Origins:
-          - DomainName: !GetAtt HostingBucket.RegionalDomainName
-            Id: s3origin
+          - Id: S3Origin
+            DomainName: !GetAtt HostingBucket.RegionalDomainName
             S3OriginConfig:
-              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
         IPV6Enabled: false
 
   BucketNameParameter:

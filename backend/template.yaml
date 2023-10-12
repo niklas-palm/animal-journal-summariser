@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   SAM Template for the backend
@@ -19,7 +19,7 @@ Resources:
 
   # Identity to allow cloudFront to access our private bucket.
   CloudFrontOriginAccessIdentity:
-    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
     Properties:
       CloudFrontOriginAccessIdentityConfig:
         Comment: !Ref HostingBucket
@@ -36,14 +36,14 @@ Resources:
             Effect: Allow
             Resource:
               - !Join
-                - ''
-                - - 'arn:aws:s3:::'
+                - ""
+                - - "arn:aws:s3:::"
                   - !Ref HostingBucket
-                  - '/*'
+                  - "/*"
             Principal:
               AWS: !Join
-                - ''
-                - - 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity '
+                - ""
+                - - "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity "
                   - !Ref CloudFrontOriginAccessIdentity
 
   # CDN to front and cache the website
@@ -84,8 +84,8 @@ Resources:
   BucketNameParameter:
     Type: AWS::SSM::Parameter
     Properties:
-      Description: 'Hosting bucket name'
-      Name: !Sub '${GithubRepoName}-hosting-bucket'
+      Description: "Hosting bucket name"
+      Name: !Sub "${GithubRepoName}-hosting-bucket"
       Type: String # Required
       Value: !Ref HostingBucket # Required
 

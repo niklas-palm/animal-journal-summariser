@@ -226,7 +226,8 @@ Resources:
         AuthType: NONE
         Cors:
           AllowOrigins:
-            - !Sub "https://${ServiceName}.demo.enpalm.se"
+            # - !Sub "https://${ServiceName}.demo.enpalm.se"
+            - "*"
 
   # Summarise function.
   SummarizeFunction:

@@ -41,10 +41,7 @@ Resources:
                   - !Ref HostingBucket
                   - "/*"
             Principal:
-              AWS: !Join
-                - ""
-                - - "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity "
-                  - !Ref CloudFrontOriginAccessIdentity
+              AWS: !Sub "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}"
 
   # CDN to front and cache the website
   CloudfrontDistribution:

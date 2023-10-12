@@ -15,19 +15,9 @@ bedrock = boto3.client(
 )
 
 
-s3_client = boto3.client("s3")
+# s3_client = boto3.client("s3")
 s3 = boto3.resource("s3")
 
-
-import boto3
-
-data_string = "This is a random string."
-
-s3 = boto3.resource("s3")
-
-object = s3.Object(bucket_name="radishlogic-bucket", key="folder/file_resource.txt")
-
-object.put(Body=data_string)
 
 S3_BUCKET = os.environ["DESTINATION_BUCKETNAME"]
 

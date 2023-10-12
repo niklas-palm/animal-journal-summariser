@@ -156,7 +156,7 @@ Resources:
         Rules:
           - Id: ExpireRule
             Status: Enabled
-            ExpirationInDays: 2 # Autmatically delete object after 2 days
+            ExpirationInDays: 2 # Automatically delete object after 2 days
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
@@ -183,7 +183,7 @@ Resources:
         Rules:
           - Id: ExpireRule
             Status: Enabled
-            ExpirationInDays: 2 # Autmatically delete object after 2 days
+            ExpirationInDays: 2 # Automatically delete object after 2 days
       Tags:
         - Key: project
           Value: !Ref ServiceName

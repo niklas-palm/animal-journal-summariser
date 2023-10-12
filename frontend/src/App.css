@@ -29,6 +29,7 @@
 }
 
 .Summary {
+  margin-top: 2em;
   width: 60%;
   text-align: left;
   white-space: pre-wrap;

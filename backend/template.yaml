@@ -228,6 +228,12 @@ Resources:
             BucketName: !Sub "upload-${AWS::AccountId}-${AWS::Region}" # Explicit name only to avoid circular dependency on Lambda
         - S3CrudPolicy:
             BucketName: !Ref SummariesBucket
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: "*"
       Environment:
         Variables:
           DESTINATION_BUCKETNAME: !Ref SummariesBucket

@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Template for the backend
+
+Parameters:
+  GithubRepoName:
+    Type: String
+    Description: Name of the GitHub repo where the project is stored.
+
+Resources:
+  ### STATIC HOSTING
+
+  # Bucket to host static web assets
+  HostingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+
+  # Identity to allow cloudFront to access our private bucket.
+  CloudFrontOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Ref HostingBucket
+
+  # Bucket policy that allows the aboe OAI to access the bucket.
+  HostingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref HostingBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref HostingBucket
+                  - '/*'
+            Principal:
+              AWS: !Join
+                - ''
+                - - 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity '
+                  - !Ref CloudFrontOriginAccessIdentity
+
+  # CDN to front and cache the website
+  CloudfrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          AllowedMethods: # Which methods to forward to S3
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods: # Which methods to cache responses for at cloudfront
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          DefaultTTL: 60 # in seconds
+          MaxTTL: 240 # in seconds
+          MinTTL: 60 # in seconds
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+          TargetOriginId: s3origin # Required
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_All
+        Origins:
+          - DomainName: !GetAtt HostingBucket.RegionalDomainName
+            Id: s3origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+        IPV6Enabled: false
+
+  BucketNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'Hosting bucket name'
+      Name: !Sub '${GithubRepoName}-hosting-bucket'
+      Type: String # Required
+      Value: !Ref HostingBucket # Required
+
+Outputs:
+  DomainUrlCloudfront:
+    Value: !GetAtt CloudfrontDistribution.DomainName
+    Description: Cloudfront distribution URL.
+
+  BucketNameParameter:
+    Value: !Ref BucketNameParameter
+    Description: Name of the SSM paramter containing the S3 hosting bucket name.

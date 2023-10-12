@@ -49,6 +49,6 @@ export const getSummary = async (objectKey: string) => {
     );
     return response;
   } catch (error: any) {
-    console.log("Still working");
+    //do nothing
   }
 };

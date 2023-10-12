@@ -15,9 +15,11 @@ function App() {
     if (waitingForSummary) {
       const interval = setInterval(async () => {
         let response = await getSummary(objectKey);
-        console.log(response);
-        // setSummary(response);
-        // setWaitingForSummary(false);
+        if (response?.status === 200) {
+          setSummary(response.data);
+          setWaitingForSummary(false);
+          setLoading(false);
+        }
       }, 1000);
 
       //Clearing the interval
@@ -28,6 +30,8 @@ function App() {
 
   const onUploadClick = async (e: any) => {
     setSummary(null);
+    setObjectKey("");
+
     let files = e.target.files;
 
     setLoading(true);

@@ -8,6 +8,11 @@ Parameters:
     Type: String
     Description: Name of the GitHub repo where the project is stored.
 
+  ServiceName:
+    Type: String
+    Description: Name of service. Prepends domain name
+    Default: medsum
+
 Resources:
   ### STATIC HOSTING
 
@@ -50,6 +55,8 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Sub "${ServiceName}.demo.enpalm.se"
         DefaultCacheBehavior:
           AllowedMethods: # Which methods to forward to S3
             - GET
@@ -80,6 +87,10 @@ Resources:
               OriginAccessIdentity: ""
             OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
         IPV6Enabled: false
+        ViewerCertificate:
+          AcmCertificateArn: arn:aws:acm:us-east-1:675385716628:certificate/73557123-bfc3-4e9c-84b3-afcf1df5b00e
+          MinimumProtocolVersion: TLSv1
+          SslSupportMethod: sni-only
 
   BucketNameParameter:
     Type: AWS::SSM::Parameter
@@ -88,6 +99,19 @@ Resources:
       Name: !Sub "${GithubRepoName}-hosting-bucket"
       Type: String # Required
       Value: !Ref HostingBucket # Required
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: demo.enpalm.se.
+      RecordSets:
+        - Name: !Sub "${ServiceName}.demo.enpalm.se."
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt CloudfrontDistribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2
+
+  ### Upload data
 
 Outputs:
   DomainUrlCloudfront:

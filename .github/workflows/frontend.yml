@@ -1,0 +1,44 @@
+name: Frontend workflow
+on:
+  push:
+    paths:
+      - frontend/**
+      - .github/workflows/frontend.yml
+env:
+  AWS_REGION: "eu-west-1" # Select this to suit where you'd like to deploy your workload
+  OIDC_ROLE: arn:aws:iam::675385716628:role/GithubActionsToAssume # CHANGE THIS and configure according to these instructions: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+jobs:
+  BuildPipeline:
+    defaults:
+      run:
+        working-directory: ./frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout the repo
+        uses: actions/checkout@v3
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{env.OIDC_ROLE}}
+          aws-region: ${{env.AWS_REGION}}
+
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: install node dependencies
+        run: |
+          npm install
+
+      - name: build frontend
+        run: |
+          npm run build
+
+      - name: upload new frontend artifacts
+        run: |
+          aws s3 cp ./build s3://$(aws ssm get-parameter --name ${{github.event.repository.name}}-hosting-bucket --query "Parameter.Value" --output text)/ --recursive

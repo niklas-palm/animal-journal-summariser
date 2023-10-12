@@ -23,19 +23,6 @@ S3_BUCKET = os.environ["DESTINATION_BUCKETNAME"]
 
 
 def fetch_pdf(path: str) -> str:
-    """
-    Read the provided PDF and return the text.
-
-    Parameters:
-        path (str): The path of the PDF.
-
-    Returns:
-        str: The extracted text from the PDF.
-
-    Raises:
-        ValueError: If the file is not a PDF.
-    """
-
     file_extension = os.path.splitext(path)[1]
     if file_extension.lower() != ".pdf":
         raise ValueError("File is not a PDF")
@@ -44,15 +31,24 @@ def fetch_pdf(path: str) -> str:
     return "\n".join(page.extract_text() for page in reader.pages)
 
 
-def lambda_handler(event, context):
-    logger.info("## Invocation started")
+def download_s3_object(bucket_name, object_key):
+    # Initialize the S3 resource
+    s3 = boto3.resource("s3")
 
-    logger.info(event)
+    local_path = f"/tmp/{object_key}"
 
-    # Fetch object
+    try:
+        # Download the object from S3
+        s3.Bucket(bucket_name).download_file(object_key, local_path)
+        return local_path
+    except Exception as e:
+        logger.error(f"Error downloading object: {str(e)}")
 
-    text = fetch_pdf(input)
 
+def construct_prompt(text, max_tokens, temp, top_k):
+    # Read more about parameters here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters.html#model-parameters-claude
+
+    # Construct prompt
     prompt = f""" This is an example of a summary of an animal's medical journal:
 Owner: Jane Doe
 Address: Gatvägen 7a, 111 99 STOCKHOLM, Sweden
@@ -92,13 +88,31 @@ Below is a medical journal for an animal. Create a complete and thorough summary
     prompt = "Human: " + prompt + "\n Assistant:"
     prompt_config = {
         "prompt": prompt,
-        "max_tokens_to_sample": 8100,
-        "temperature": 0.3,
-        "top_k": 50,
+        "max_tokens_to_sample": max_tokens,
+        "temperature": temp,
+        "top_k": top_k,
     }
 
-    body = json.dumps(prompt_config)
+    return json.dumps(prompt_config)
 
+
+def lambda_handler(event, context):
+    logger.info(event)
+
+    # Get s3 info from event payload
+    s3_bucket = event["Records"][0]["s3"]["bucket"]["name"]
+    object_key = event["Records"][0]["s3"]["object"]["key"]
+
+    # Fetch object
+    local_path = download_s3_object(s3_bucket, object_key)
+
+    # Parse PDF
+    text = fetch_pdf(local_path)
+
+    # Construct prompt
+    body = construct_prompt(text, max_tokens=8100, temp=0.3, top_k=50)
+
+    # Invoke bedrock with prompt
     response = bedrock.invoke_model(
         body=body,
         modelId=MODEL_ID,
@@ -111,7 +125,7 @@ Below is a medical journal for an animal. Create a complete and thorough summary
 
     logger.info(summary)
 
-    object_id = "123"
+    object_id = object_key.split(".")[0]
 
     # Store summary in S3
     object = s3.Object(bucket_name=S3_BUCKET, key=f"summaries/{object_id}.txt")

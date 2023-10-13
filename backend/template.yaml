@@ -238,7 +238,7 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.9
       MemorySize: 2048
-      Timeout: 45
+      Timeout: 120
       Tags:
         project: !Ref ServiceName
       Policies:

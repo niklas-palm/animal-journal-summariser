@@ -6,8 +6,8 @@ from PyPDF2 import PdfReader
 
 logger = Logger()
 
-MODEL_ID = "anthropic.claude-instant-v1"
-
+# MODEL_ID = "anthropic.claude-instant-v1"  # Smaller, cheaper, faster
+MODEL_ID = "anthropic.claude-v2"  # Larger, more expensive, much better performance
 
 bedrock = boto3.client(
     service_name="bedrock-runtime",

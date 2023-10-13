@@ -20,7 +20,7 @@ function App() {
           setWaitingForSummary(false);
           setLoading(false);
         }
-      }, 1000);
+      }, 2500);
 
       //Clearing the interval
       return () => clearInterval(interval);
@@ -42,12 +42,6 @@ function App() {
     setLoading(false);
     setWaitingForSummary(true);
   };
-
-  // const renderText = (): JSX.Element => {
-  //   return summary.split("\n").map((text: string) => {
-  //     return <p>{text}</p>;
-  //   });
-  // };
 
   return (
     <div className="App">

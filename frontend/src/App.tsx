@@ -36,7 +36,7 @@ function App() {
 
     setLoading(true);
     const response = await postData(files);
-    console.log(response);
+    console.log("Object uploaded, now polling for summary");
     setObjectKey(response);
 
     setLoading(false);

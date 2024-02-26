@@ -1,6 +1,6 @@
 ## Med journal summary
 
-Sets up the infrastructure to quickly summarise animal medical journals, for demo purposes.
+Sets up the infrastructure to quickly summarise animal medical journals, for demo purposes. Uses AWS Bedrock amnd Claude with one-shot prompting.
 
 ### Prerequisites
 

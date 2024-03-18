@@ -56,7 +56,7 @@ def construct_prompt(journal_text):
     "animal_address": "string",
     "animal_phone": "string",
     "animal_email": "string"
-    "vitists": [
+    "visits": [
         {
             "date": "string",
             "clinic": "string",

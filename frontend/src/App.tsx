@@ -48,12 +48,12 @@ function App() {
       return (
         <Grid xs={12}>
           <Card shadow width="100%">
-            <Text h3>`Date: ${visit.date}`</Text>
-            <Text h3>`Clinic: ${summary.clinic}`</Text>
-            <Text h3>`Reason: ${summary.reason}`</Text>
-            <Text h3>`Diagnosis: ${summary.diagnosis}`</Text>
-            <Text h3>`Treatment: ${summary.treatment}`</Text>
-            <Text h3>`Notes: ${summary.notes}`</Text>
+            <Text h3>Date: {visit.date}</Text>
+            <Text h3>Clinic: {visit.clinic}</Text>
+            <Text h3>Reason: {visit.reason}</Text>
+            <Text h3>Diagnosis: {visit.diagnosis}</Text>
+            <Text h3>Treatment: {visit.treatment}</Text>
+            <Text h3>Notes: {visit.notes}</Text>
           </Card>
         </Grid>
       );
@@ -66,15 +66,15 @@ function App() {
       return (
         <Grid.Container gap={2} justify="center">
           <Grid xs={24}>
-            <Text h3>`Name: ${summary.animal_name}`</Text>
-            <Text h3>`Species: ${summary.animal_species}`</Text>
-            <Text h3>`Sex: ${summary.animal_sex}`</Text>
-            <Text h3>`Date of birth: ${summary.animal_date_of_birth}`</Text>
-            <Text h3>`Weight: ${summary.animal_weight}`</Text>
-            <Text h3>`Address: ${summary.animal_address}`</Text>
-            <Text h3>`Owner: ${summary.animal_owner}`</Text>
-            <Text h3>`Address: ${summary.animal_address}`</Text>
-            <Text h3>`Email: ${summary.animal_email}`</Text>
+            <Text>Name: {summary.animal_name}</Text>
+            <Text>Species: {summary.animal_species}</Text>
+            <Text>Sex: {summary.animal_sex}</Text>
+            <Text>Date of birth: {summary.animal_date_of_birth}</Text>
+            <Text>Weight: {summary.animal_weight}</Text>
+            <Text>Address: {summary.animal_address}</Text>
+            <Text>Owner: {summary.animal_owner}</Text>
+            <Text>Address: {summary.animal_address}</Text>
+            <Text>Email: {summary.animal_email}</Text>
           </Grid>
           {renderVisits(summary.visits)}
         </Grid.Container>

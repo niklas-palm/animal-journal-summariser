@@ -43,26 +43,26 @@ function App() {
     setWaitingForSummary(true);
   };
 
-  const renderVisits = (visits: any) => {
+  const renderVisits = (visits: Array<Object>) => {
     return visits.map((visit: any) => {
-      <Grid xs={12}>
-      <Card shadow width="100%">
-        <Text>
-          <Text h3>`Date: ${visit.date}`</Text>
-          <Text h3>`Clinic: ${summary.clinic}`</Text>
-          <Text h3>`Reason: ${summary.reason}`</Text>
-          <Text h3>`Diagnosis: ${summary.diagnosis}`</Text>
-          <Text h3>`Treatment: ${summary.treatment}`</Text>
-          <Text h3>`Notes: ${summary.notes}`</Text>
-        </Text>
-      </Card>
-    </Grid>
-    }
-  }
+      return (
+        <Grid xs={12}>
+          <Card shadow width="100%">
+            <Text h3>`Date: ${visit.date}`</Text>
+            <Text h3>`Clinic: ${summary.clinic}`</Text>
+            <Text h3>`Reason: ${summary.reason}`</Text>
+            <Text h3>`Diagnosis: ${summary.diagnosis}`</Text>
+            <Text h3>`Treatment: ${summary.treatment}`</Text>
+            <Text h3>`Notes: ${summary.notes}`</Text>
+          </Card>
+        </Grid>
+      );
+    });
+  };
 
   const renderSummary = () => {
     if (summary) {
-      console.log(summary)
+      console.log(summary);
       return (
         <Grid.Container gap={2} justify="center">
           <Grid xs={24}>

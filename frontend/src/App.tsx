@@ -58,7 +58,7 @@ function App() {
             <Text h3>`Address: ${summary.animal_address}`</Text>
             <Text h3>`Email: ${summary.animal_email}`</Text>
           </Grid>
-          {summary.visits.map((visit: any) => {
+          {/* {summary.visits.map((visit: any) => {
             return (
               <Grid xs={12}>
                 <Card shadow width="100%">
@@ -73,7 +73,7 @@ function App() {
                 </Card>
               </Grid>
             );
-          })}
+          })} */}
         </Grid.Container>
       );
     } else {

@@ -43,8 +43,26 @@ function App() {
     setWaitingForSummary(true);
   };
 
+  const renderVisits = (visits: any) => {
+    return visits.map((visit: any) => {
+      <Grid xs={12}>
+      <Card shadow width="100%">
+        <Text>
+          <Text h3>`Date: ${visit.date}`</Text>
+          <Text h3>`Clinic: ${summary.clinic}`</Text>
+          <Text h3>`Reason: ${summary.reason}`</Text>
+          <Text h3>`Diagnosis: ${summary.diagnosis}`</Text>
+          <Text h3>`Treatment: ${summary.treatment}`</Text>
+          <Text h3>`Notes: ${summary.notes}`</Text>
+        </Text>
+      </Card>
+    </Grid>
+    }
+  }
+
   const renderSummary = () => {
     if (summary) {
+      console.log(summary)
       return (
         <Grid.Container gap={2} justify="center">
           <Grid xs={24}>
@@ -58,22 +76,7 @@ function App() {
             <Text h3>`Address: ${summary.animal_address}`</Text>
             <Text h3>`Email: ${summary.animal_email}`</Text>
           </Grid>
-          {/* {summary.visits.map((visit: any) => {
-            return (
-              <Grid xs={12}>
-                <Card shadow width="100%">
-                  <Text>
-                    <Text h3>`Date: ${visit.date}`</Text>
-                    <Text h3>`Clinic: ${summary.clinic}`</Text>
-                    <Text h3>`Reason: ${summary.reason}`</Text>
-                    <Text h3>`Diagnosis: ${summary.diagnosis}`</Text>
-                    <Text h3>`Treatment: ${summary.treatment}`</Text>
-                    <Text h3>`Notes: ${summary.notes}`</Text>
-                  </Text>
-                </Card>
-              </Grid>
-            );
-          })} */}
+          {renderVisits(summary.visits)}
         </Grid.Container>
       );
     } else {

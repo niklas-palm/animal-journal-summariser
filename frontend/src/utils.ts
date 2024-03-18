@@ -31,7 +31,7 @@ export const postData = async (files: Array<any>) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 
-  let new_key = object_key.split(".")[0] + ".txt";
+  let new_key = object_key.split(".")[0] + ".json";
   return new_key;
 };
 

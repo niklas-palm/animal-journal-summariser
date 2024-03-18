@@ -236,7 +236,7 @@ Resources:
     Properties:
       CodeUri: functions/get_summary
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       MemorySize: 2048
       Timeout: 240
       Tags:

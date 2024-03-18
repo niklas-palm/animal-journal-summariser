@@ -6,8 +6,7 @@ from PyPDF2 import PdfReader
 
 logger = Logger()
 
-# MODEL_ID = "anthropic.claude-instant-v1"  # Smaller, cheaper, faster
-MODEL_ID = "anthropic.claude-v2"  # Larger, more expensive, much better performance
+MODEL_ID = "anthropic.claude-3-sonnet-20240229-v1:0"
 
 bedrock = boto3.client(
     service_name="bedrock-runtime",
@@ -45,55 +44,90 @@ def download_s3_object(bucket_name, object_key):
         logger.error(f"Error downloading object: {str(e)}")
 
 
-def construct_prompt(text, max_tokens, temp, top_k):
-    # Read more about parameters here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters.html#model-parameters-claude
+def construct_prompt(journal_text):
+    response_structure = """
+{
+    "animal_name": "string",
+    "animal_species": "string",
+    "animal_sex": "string",
+    "animal_owner": "string",
+    "animal_date_of_birth": "string",
+    "animal_weight": "string"
+    "animal_address": "string",
+    "animal_phone": "string",
+    "animal_email": "string"
+    "vitists": [
+        {
+            "date": "string",
+            "clinic": "string",
+            "reason": "string",
+            "diagnosis": "string",
+            "treatment": "string",
+            "notes": "string"
+        }
+    ]
+}
+"""
 
-    # Construct prompt
-    prompt = f""" This is an example of a summary of an animal's medical journal:
-Owner: Jane Doe
-Address: Gatvägen 7a, 111 99 STOCKHOLM, Sweden
-Phone: +46 70 123 45 67
-Email: mail@mail.com
+    rules = """
+- You only include information you are certain of.
+- If you are not certain, put "unknown" as the value.
+"""
 
-Patient: Fido (microchip #567898765678)
-Species: Domestic shorthair cat
-Sex: Spayed female
-Date of birth: 2011-05-11
-Weight: 4.8 kg
+    prompt = f"""
+<instructions>
+You are an animal journal data extraction tool. 
+Given a medical animal journal, you extract all of the relevant information related to the animal and all visits to the veterinary, including the reason for visit, diagnosis, treatment and relevant information to the visit.
 
-Visit 1: January 7, 2021
-Clinic: Lunds Djursjukhus Evidensia
-Reason for visit: lethargy, slight fever
-Diagnosis: Fever
-Notes: Young dog presenting with dampened behavior and fever. Treated and recovered. 
+You respond only in JSON-format, with the following structure:
+<response-structure>
+{response_structure}
+</response-structure>
 
-Visit 2: July 24, 2021
-Clinic: Evidensia Djursjukhuset Malmö
-Reason for visit: shaking, abnormal breathing
-Diagnosis: Symptoms of undiagnosed illness, non-specific
-Notes: Developed shaking and breathing issues after swimming in a lake. Condition improved at hospital.
+These are some rules:
+<rules>
+{rules}
+</rules>
 
-Visit 3: September 24, 2023
-Clinic: Sundsvall Djursjukhus Evidensia
-Reason for visit: vomiting, unsteady gait about 1.5 hours after eating feces in forest
-Diagnosis: Symptoms of poisoning  
-Notes: Admitted for IV treatment and monitoring for suspected cannabis poisoning. Tests confirmed cannabis. Condition improved and discharged September 25.
+</instructions>
 
 
-Below is a medical journal for an animal. Create a complete and thorough summary, using the above example. Include information about the animal, it's owner and list all veterinary visits including date, reason for visit, notes and diagnosis:
+<task>
+Given the extracted text from the journal below, extract all information into the provided schema.
+</task>
 
-{text}
-        """
-
-    prompt = "Human: " + prompt + "\n Assistant:"
+<journal>
+{journal_text}
+</journal>
+"""
     prompt_config = {
-        "prompt": prompt,
-        "max_tokens_to_sample": max_tokens,
-        "temperature": temp,
-        "top_k": top_k,
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 4096,
+        # "system": "Always respond in English.",
+        "messages": [
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": prompt}],
+            },
+            {
+                "role": "assistant",
+                "content": "{",
+            },
+        ],
+        "temperature": 0.1,
     }
 
     return json.dumps(prompt_config)
+
+
+def invoke_model(payload):
+    response = bedrock.invoke_model(body=payload, modelId=MODEL_ID)
+
+    return json.loads(response.get("body").read())
+
+
+def parse_output_as_json(output):
+    return json.loads("{" + output)
 
 
 def lambda_handler(event, context):
@@ -110,25 +144,20 @@ def lambda_handler(event, context):
     text = fetch_pdf(local_path)
 
     # Construct prompt
-    body = construct_prompt(text, max_tokens=8100, temp=0.3, top_k=50)
+    response = invoke_model(construct_prompt(text))
 
-    # Invoke bedrock with prompt
-    response = bedrock.invoke_model(
-        body=body,
-        modelId=MODEL_ID,
-        accept="application/json",
-        contentType="application/json",
-    )
+    try:
+        parsed_response = parse_output_as_json(response["content"][0]["text"])
+    except:
+        logger.error(response)
+        raise ValueError("Could not parse output as JSON")
 
-    response_body = json.loads(response.get("body").read())
-    summary = response_body["completion"].strip()
-
-    logger.info(summary)
+    logger.info(parsed_response)
 
     object_id = object_key.split(".")[0]
 
     # Store summary in S3
-    object = s3.Object(bucket_name=S3_BUCKET, key=f"summaries/{object_id}.txt")
-    object.put(Body=summary)
+    object = s3.Object(bucket_name=S3_BUCKET, key=f"summaries/{object_id}.json")
+    object.put(Body=json.dumps(parsed_response))
 
     return

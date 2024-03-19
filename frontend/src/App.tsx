@@ -1,6 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Loading, Grid, Card, Text } from "@geist-ui/core";
+import {
+  Loading,
+  Grid,
+  Card,
+  Text,
+  Description,
+  Spacer,
+  Divider,
+} from "@geist-ui/core";
 import { getSummary, postData } from "./utils";
 
 import "./App.css";
@@ -43,17 +51,108 @@ function App() {
     setWaitingForSummary(true);
   };
 
+  const renderAnimalInfo = (summary: any) => {
+    return (
+      <Grid.Container justify="center">
+        <Grid xs={9}>
+          <Grid.Container gap={2} justify="center">
+            <Grid xs={10}>
+              <Description
+                title="Animal Name"
+                content={summary.animal_name}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Animal Species"
+                content={summary.animal_species}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Animal Sex"
+                content={summary.animal_sex}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Animal Date of Birth"
+                content={summary.animal_date_of_birth}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Animal Weight"
+                content={summary.animal_weight}
+                scale={1.5}
+              />
+            </Grid>
+          </Grid.Container>
+        </Grid>
+        <Grid xs={9}>
+          <Grid.Container gap={2} justify="center">
+            <Grid xs={10}>
+              <Description
+                title="Owner"
+                content={summary.animal_owner}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Address"
+                content={summary.animal_address}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Phone"
+                content={summary.animal_phone}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
+                title="Email"
+                content={summary.animal_email}
+                scale={1.5}
+              />
+            </Grid>
+          </Grid.Container>
+        </Grid>
+      </Grid.Container>
+    );
+  };
+
   const renderVisits = (visits: Array<Object>) => {
     return visits.map((visit: any) => {
       return (
-        <Grid xs={12}>
-          <Card shadow width="100%">
-            <Text h3>Date: {visit.date}</Text>
-            <Text h3>Clinic: {visit.clinic}</Text>
-            <Text h3>Reason: {visit.reason}</Text>
-            <Text h3>Diagnosis: {visit.diagnosis}</Text>
-            <Text h3>Treatment: {visit.treatment}</Text>
-            <Text h3>Notes: {visit.notes}</Text>
+        <Grid xs={10} justify="center">
+          {/* <Text type="error"> hejhej</Text> */}
+          <Card shadow width="95%">
+            <Text p>
+              <strong>Date:</strong> {visit.date}
+            </Text>
+            <Text p>
+              <strong>Clinic:</strong> {visit.clinic}
+            </Text>
+            <Text p>
+              <strong>Reason:</strong> {visit.reason}
+            </Text>
+            <Text p>
+              <strong>Diagnosis:</strong> {visit.diagnosis}
+            </Text>
+            <Text p>
+              <strong>Treatment:</strong> {visit.treatment}
+            </Text>
+            <Text p>
+              <strong>Notes:</strong> {visit.notes}
+            </Text>
           </Card>
         </Grid>
       );
@@ -64,20 +163,22 @@ function App() {
     if (summary) {
       console.log(summary);
       return (
-        <Grid.Container gap={2} justify="center">
-          <Grid xs={24}>
-            <Text>Name: {summary.animal_name}</Text>
-            <Text>Species: {summary.animal_species}</Text>
-            <Text>Sex: {summary.animal_sex}</Text>
-            <Text>Date of birth: {summary.animal_date_of_birth}</Text>
-            <Text>Weight: {summary.animal_weight}</Text>
-            <Text>Address: {summary.animal_address}</Text>
-            <Text>Owner: {summary.animal_owner}</Text>
-            <Text>Address: {summary.animal_address}</Text>
-            <Text>Email: {summary.animal_email}</Text>
-          </Grid>
-          {renderVisits(summary.visits)}
-        </Grid.Container>
+        <>
+          <Spacer />
+          <Spacer />
+
+          <Grid.Container direction="column">
+            {renderAnimalInfo(summary)}
+            <Spacer />
+            <Divider h={3} />
+            <Spacer />
+            <Grid xs={24}>
+              <Grid.Container gap={2} justify="center">
+                {renderVisits(summary.visits)}{" "}
+              </Grid.Container>
+            </Grid>
+          </Grid.Container>
+        </>
       );
     } else {
       return null;

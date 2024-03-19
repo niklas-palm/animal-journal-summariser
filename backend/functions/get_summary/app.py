@@ -49,6 +49,7 @@ def construct_prompt(journal_text):
 {
     "animal_name": "string",
     "animal_species": "string",
+    "animal_breed": "string"
     "animal_sex": "string",
     "animal_owner": "string",
     "animal_date_of_birth": "string",

@@ -72,6 +72,13 @@ function App() {
             </Grid>
             <Grid xs={10}>
               <Description
+                title="Animal Breed"
+                content={summary.animal_breed}
+                scale={1.5}
+              />
+            </Grid>
+            <Grid xs={10}>
+              <Description
                 title="Animal Sex"
                 content={summary.animal_sex}
                 scale={1.5}
@@ -161,7 +168,6 @@ function App() {
 
   const renderSummary = () => {
     if (summary) {
-      console.log(summary);
       return (
         <>
           <Spacer />

@@ -149,6 +149,13 @@ def lambda_handler(event, context):
 
     try:
         parsed_response = parse_output_as_json(response["content"][0]["text"])
+        logger.info(parsed_response)
+
+        parsed_response["animal_owner"] = "Censur Censursson"
+        parsed_response["animal_phone"] = "+46701234567"
+        parsed_response["animal_address"] = "Censurvägen 1A, 111 11, Censurslän"
+        parsed_response["animal_email"] = "censur@censur.se"
+
     except:
         logger.error(response)
         raise ValueError("Could not parse output as JSON")
